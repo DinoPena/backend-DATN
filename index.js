@@ -5,6 +5,7 @@ const hostname = 'localhost'
 const cors = require('cors');
 const dotenv = require("dotenv");
 const connectDB = require('./src/config/db');
+const orderRoutes = require("./src/routes/order.routes");
 
 dotenv.config();
 connectDB();
@@ -13,7 +14,9 @@ const app = express()
 
 app.use(express.json());
 
-app.use("/api/products", require("./src/routes/productRoutes"));
+app.use("/api/orders", require("./src/routes/order.routes"));
+
+app.use("/api/products", require("./src/routes/product.routes"));
 
 app.use(cors());
 
