@@ -1,29 +1,36 @@
-require('dotenv').config();
-const express = require ('express')
-const port = 3000
-const hostname = 'localhost'
-const cors = require('cors');
-const dotenv = require("dotenv");
-const connectDB = require('./src/config/db');
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+
+const connectDB = require("./src/config/db");
+
+// Routes
+const productRoutes = require("./src/routes/product.routes");
 const orderRoutes = require("./src/routes/order.routes");
+const paymentRoutes = require("./src/routes/payment.routes");
 
-dotenv.config();
-connectDB();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const app = express()
-
+// ===== Middleware =====
+app.use(cors());
 app.use(express.json());
 
-app.use("/api/orders", require("./src/routes/order.routes"));
+// ===== Database =====
+connectDB();
 
-app.use("/api/products", require("./src/routes/product.routes"));
+// ===== Routes =====
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 
-app.use(cors());
+// ===== Health check =====
+app.get("/", (req, res) => {
+  res.json({ message: "API is running" });
+});
 
-app.get('/home', (req, res) => {
-  res.send('Hello World')
-})
-
-app.listen(port,hostname , () => {
-    console.log(`Server is running on http://${hostname}:${port}`)
-})
+// ===== Start server =====
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

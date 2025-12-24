@@ -1,12 +1,13 @@
 const Order = require("../models/order.model");
 const OrderItem = require("../models/order-item.model");
+const { successResponse, errorResponse } = require("../utils/response");
 
 exports.createOrder = async (req, res) => {
   try {
     const { items } = req.body;
 
     if (!items || items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+      return errorResponse(res, "Cart is empty", 400);
     }
 
     let totalAmount = 0;
@@ -31,21 +32,51 @@ exports.createOrder = async (req, res) => {
     });
 
     const savedOrder = await order.save();
+    return successResponse(res, savedOrder, 201);
 
     res.status(201).json(savedOrder);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message);
   }
 };
 
-exports.getOrders = async (req, res) => {
+
+// GET /api/orders
+exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate("items")
-      .populate("items.product");
+      .populate({
+        path: "items",
+        populate: {
+          path: "product",
+          model: "Product"
+        }
+      });
 
-    res.status(200).json(orders);
+    return successResponse(res, orders);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message);
+  }
+};
+
+// GET /api/orders/:id
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate({
+        path: "items",
+        populate: {
+          path: "product",
+          model: "Product"
+        }
+      });
+
+    if (!order) {
+      return errorResponse(res, "Order not found", 404);
+    }
+
+    return successResponse(res, order);
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
   }
 };
