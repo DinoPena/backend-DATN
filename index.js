@@ -24,6 +24,7 @@ connectDB();
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/auth", require("./src/routes/auth.routes"));
 
 // ===== Health check =====
 app.get("/", (req, res) => {

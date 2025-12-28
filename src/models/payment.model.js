@@ -7,22 +7,27 @@ const paymentSchema = new mongoose.Schema(
       ref: "Order",
       required: true
     },
+
     method: {
       type: String,
-      enum: ["COD", "PAYPAL"],
-      default: "COD"
+      enum: ["cod", "paypal", "momo"],
+      required: true
     },
+
     amount: {
       type: Number,
       required: true
     },
+
     status: {
       type: String,
       enum: ["pending", "paid", "failed"],
       default: "pending"
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
 module.exports = mongoose.model("Payment", paymentSchema);
