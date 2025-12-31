@@ -28,8 +28,6 @@ const authMiddleware = (req, res, next) => {
       role: decoded.role
     };
 
-    console.log("USER:", req.user);
-
     // 5. Cho đi tiếp
     next();
   } catch (error) {

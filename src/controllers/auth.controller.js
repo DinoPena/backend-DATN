@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { successResponse, errorResponse } = require("../utils/response");
 
 // REGISTER
 exports.register = async (req, res) => {
@@ -9,7 +10,7 @@ exports.register = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return errorResponse(res, "Email already exists", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,9 +23,15 @@ exports.register = async (req, res) => {
     });
 
     const savedUser = await user.save();
-    res.status(201).json(savedUser);
+
+    return successResponse(res, {
+      id: savedUser._id,
+      name: savedUser.name,
+      email: savedUser.email,
+      role: savedUser.role
+    }, 201);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -35,12 +42,12 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return errorResponse(res, "Invalid email or password", 400);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return errorResponse(res, "Invalid email or password", 400);
     }
 
     const token = jwt.sign(
@@ -49,7 +56,7 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).json({
+    return successResponse(res, {
       token,
       user: {
         id: user._id,
@@ -58,6 +65,6 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };

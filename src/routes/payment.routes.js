@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const paymentController = require("../controllers/payment.controller");
-const { createPayment, getPaymentsByOrder, updatePaymentStatus, confirmPaypalPayment} = require("../controllers/payment.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
+const { isAdmin } = require("../middlewares/role.middleware");
 
 // POST /api/payments
 router.post("/", paymentController.createPayment);
@@ -9,10 +10,10 @@ router.post("/", paymentController.createPayment);
 // GET payment theo order
 router.get("/order/:orderId", paymentController.getPaymentsByOrder);
 
-// PUT /api/payments/:id/status
-router.put("/:id/status", updatePaymentStatus);
+// ADMIN – get all payments
+router.get("/", authMiddleware, isAdmin, paymentController.getAllPayments);
 
-// Fake PayPal confirm
-router.post("/paypal/confirm", confirmPaypalPayment);
+// PUT /api/payments/:id/status
+router.put("/:id/status", authMiddleware, isAdmin, paymentController.updatePaymentStatus);
 
 module.exports = router;

@@ -27,14 +27,13 @@ exports.createOrder = async (req, res) => {
     }
 
     const order = new Order({
+      user: req.user.id,
       items: orderItemIds,
       totalAmount
     });
 
     const savedOrder = await order.save();
-    return successResponse(res, savedOrder, 201);
-
-    res.status(201).json(savedOrder);
+    return successResponse(res, savedOrder, 201);    
   } catch (error) {
     return errorResponse(res, error.message);
   }
@@ -75,8 +74,35 @@ exports.getOrderById = async (req, res) => {
       return errorResponse(res, "Order not found", 404);
     }
 
+    // Nếu không phải admin → chỉ xem order của mình
+    if (
+      req.user.role !== "admin" &&
+      order.user.toString() !== req.user.id
+    ) {
+      return errorResponse(res, "Forbidden", 403);
+    }
+
     return successResponse(res, order);
   } catch (error) {
     return errorResponse(res, error.message, 400);
   }
 };
+
+// GET /api/orders/my-orders
+exports.getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user.id })
+      .populate({
+        path: "items",
+        populate: {
+          path: "product",
+          model: "Product"
+        }
+      });
+
+    return successResponse(res, orders);
+  } catch (error) {
+    return errorResponse(res, error.message);
+  }
+};
+
