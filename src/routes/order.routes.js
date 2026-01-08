@@ -13,6 +13,8 @@ router.post("/", authMiddleware, orderController.createOrder);
 
 router.get("/:id", authMiddleware, orderController.getOrderById);
 
+router.patch("/:id/status", authMiddleware, isAdmin, orderController.updateOrderStatus);
 
+router.put("/:id/cancel", authMiddleware, isAdmin, orderController.cancelOrder);
 
 module.exports = router;

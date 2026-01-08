@@ -11,6 +11,14 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
+    category:{
+      type: String,
+      default: "unknown"
+    },
+    brand:{
+      type: String,
+      default: "unknown"
+    },
     description: {
       type: String
     },

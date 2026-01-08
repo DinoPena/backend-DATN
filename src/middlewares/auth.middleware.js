@@ -1,40 +1,29 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/user.model");
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
-    // 1. Lấy header Authorization
     const authHeader = req.headers.authorization;
-
     if (!authHeader) {
-      return res.status(401).json({
-        message: "No token provided"
-      });
+      return res.status(401).json({ message: "No token provided" });
     }
 
-    // 2. Kiểm tra Bearer token
     const token = authHeader.split(" ")[1];
     if (!token) {
-      return res.status(401).json({
-        message: "Invalid token format"
-      });
+      return res.status(401).json({ message: "Invalid token format" });
     }
 
-    // 3. Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
 
-    // 4. Gắn user vào request
-    req.user = {
-      id: decoded.id,
-      role: decoded.role
-    };
+    if (!user || !user.isActive) {
+      return res.status(403).json({ message: "Account is banned" });
+    }
 
-    // 5. Cho đi tiếp
+    req.user = user;
     next();
-  } catch (error) {
-    return res.status(401).json({
-      message: "Unauthorized",
-      error: error.message
-    });
+  } catch (err) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };
 

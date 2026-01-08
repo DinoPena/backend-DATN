@@ -21,10 +21,21 @@ const orderSchema = new mongoose.Schema({
       type: String,
       enum: ["pending", "paid", "cancelled"],
       default: "pending"
+    },
+    cancelledReason: {
+      type: String,
+      default: ""
+    },
+
+    cancelledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+
+    cancelledAt: {
+      type: Date
     }
-    
-  },
-  { timestamps: true }
+  }, { timestamps: true }
 );
 
 module.exports = mongoose.model("Order", orderSchema);
