@@ -15,7 +15,7 @@ exports.createOrder = async (req, res) => {
     let totalAmount = 0;
     const orderItemIds = [];
 
-    // 1️⃣ CHECK STOCK
+    // CHECK STOCK
     for (const item of items) {
       const product = await Product.findById(item.product);
 
@@ -32,7 +32,7 @@ exports.createOrder = async (req, res) => {
       }
     }
 
-    // 2️⃣ SAVE ORDER ITEMS + TRỪ STOCK
+    // SAVE ORDER ITEMS + TRỪ STOCK
     for (const item of items) {
       const orderItem = new OrderItem({
         product: item.product,
@@ -51,7 +51,7 @@ exports.createOrder = async (req, res) => {
       );
     }
 
-    // 3️⃣ SAVE ORDER
+    // SAVE ORDER
     const order = new Order({
       user: req.user.id,
       items: orderItemIds,
