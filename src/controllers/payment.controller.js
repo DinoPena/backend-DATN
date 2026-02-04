@@ -7,14 +7,11 @@ exports.createPayment = async (req, res) => {
     const { orderId, method, amount } = req.body;
     const paymentMethod = method?.toLowerCase();
 
-
-    // 1. Kiểm tra order tồn tại
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // 2. Tạo payment
     const payment = new Payment({
       order: orderId,
       method: paymentMethod,
@@ -22,7 +19,6 @@ exports.createPayment = async (req, res) => {
     });
     
 
-    // 3. Giả lập COD → thanh toán thành công
     if (paymentMethod === "cod") {
       payment.status = "paid";
       order.status = "paid";
@@ -53,31 +49,26 @@ exports.updatePaymentStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    // 1. validate
     if (!["paid", "failed"].includes(status)) {
       return res.status(400).json({
         message: "Invalid payment status"
       });
     }
 
-    // 2. find payment
     const payment = await Payment.findById(req.params.id).populate("order");
     if (!payment) {
       return res.status(404).json({ message: "Payment not found" });
     }
 
-    // 3. chỉ cho update nếu đang pending
     if (payment.status !== "pending") {
       return res.status(400).json({
         message: "Payment already processed"
       });
     }
 
-    // 4. update payment
     payment.status = status;
     await payment.save();
 
-    // 5. sync order
     if (status === "paid") {
       payment.order.status = "paid";
     } else {
@@ -92,7 +83,6 @@ exports.updatePaymentStatus = async (req, res) => {
 };
 
 
-// ADMIN – GET all payments
 exports.getAllPayments = async (req, res) => {
   try {
     const payments = await Payment.find().populate("order");
@@ -102,6 +92,6 @@ exports.getAllPayments = async (req, res) => {
   }
 };
 
-// ADMIN – update payment status
+
 
 

@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { successResponse, errorResponse } = require("../utils/response");
 
-// REGISTER
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -35,7 +34,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// LOGIN
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -43,6 +41,10 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return errorResponse(res, "Invalid email or password", 400);
+    }
+
+    if (!user.isActive) {
+      return errorResponse(res, "Account has been blocked", 403);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

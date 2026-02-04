@@ -2,7 +2,7 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const { successResponse, errorResponse } = require("../utils/response");
 
-// ================= GET ALL USERS (ADMIN) =================
+
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
@@ -12,7 +12,6 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// ================= UPDATE USER ROLE (ADMIN) =================
 exports.updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -21,7 +20,6 @@ exports.updateUserRole = async (req, res) => {
       return errorResponse(res, "Invalid role", 400);
     }
 
-    // ❌ không cho admin tự đổi role mình
     if (req.user.id === req.params.id) {
       return errorResponse(res, "Cannot change your own role", 400);
     }
@@ -42,10 +40,8 @@ exports.updateUserRole = async (req, res) => {
   }
 };
 
-// ================= DELETE USER (ADMIN) =================
 exports.deleteUser = async (req, res) => {
   try {
-    // ❌ không cho admin tự xoá mình
     if (req.user.id === req.params.id) {
       return errorResponse(res, "Cannot delete your own account", 400);
     }
@@ -61,7 +57,6 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// ================= RESET PASSWORD (ADMIN) =================
 exports.adminResetPassword = async (req, res) => {
   try {
     const { newPassword } = req.body;
@@ -88,10 +83,8 @@ exports.adminResetPassword = async (req, res) => {
   }
 };
 
-// ================= TOGGLE USER ACTIVE (ADMIN) =================
 exports.toggleUserStatus = async (req, res) => {
   try {
-    // ❌ không tự khoá chính mình
     if (req.user.id === req.params.id) {
       return errorResponse(res, "Cannot change your own status", 400);
     }

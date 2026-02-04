@@ -1,7 +1,6 @@
 const Message = require("../models/message.model");
 const { successResponse, errorResponse } = require("../utils/response");
 
-// USER gửi message
 exports.createMessage = async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -22,7 +21,6 @@ exports.createMessage = async (req, res) => {
   }
 };
 
-// ADMIN xem tất cả message
 exports.getAllMessages = async (req, res) => {
   try {
     const messages = await Message.find()

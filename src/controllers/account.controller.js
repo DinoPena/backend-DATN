@@ -2,9 +2,6 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const { successResponse, errorResponse } = require("../utils/response");
 
-/**
- * GET /api/account/me
- */
 exports.getMyProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -15,9 +12,6 @@ exports.getMyProfile = async (req, res) => {
   }
 };
 
-/**
- * PATCH /api/account/me
- */
 exports.updateMyProfile = async (req, res) => {
   try {
     const { name } = req.body;
@@ -34,9 +28,6 @@ exports.updateMyProfile = async (req, res) => {
   }
 };
 
-/**
- * PATCH /api/account/change-password
- */
 exports.changeMyPassword = async (req, res) => {
   try {
     const { newPassword } = req.body;

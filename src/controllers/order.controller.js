@@ -3,7 +3,7 @@ const OrderItem = require("../models/order-item.model");
 const Product = require("../models/product.model");
 const { successResponse, errorResponse } = require("../utils/response");
 
-// ================= CREATE ORDER =================
+
 exports.createOrder = async (req, res) => {
   try {
     const { items } = req.body;
@@ -15,7 +15,6 @@ exports.createOrder = async (req, res) => {
     let totalAmount = 0;
     const orderItemIds = [];
 
-    // CHECK STOCK
     for (const item of items) {
       const product = await Product.findById(item.product);
 
@@ -32,7 +31,6 @@ exports.createOrder = async (req, res) => {
       }
     }
 
-    // SAVE ORDER ITEMS + TRỪ STOCK
     for (const item of items) {
       const orderItem = new OrderItem({
         product: item.product,
@@ -51,7 +49,6 @@ exports.createOrder = async (req, res) => {
       );
     }
 
-    // SAVE ORDER
     const order = new Order({
       user: req.user.id,
       items: orderItemIds,
@@ -67,7 +64,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// ================= GET ALL ORDERS (ADMIN) =================
+
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
@@ -87,7 +84,7 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// ================= GET ORDER BY ID =================
+
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -116,7 +113,7 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-// ================= GET MY ORDERS =================
+
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id })
@@ -139,7 +136,7 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
-// ================= UPDATE ORDER STATUS (ADMIN) =================
+
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -155,12 +152,11 @@ exports.updateOrderStatus = async (req, res) => {
       return errorResponse(res, "Order not found", 404);
     }
 
-    // ❌ Không cho đổi trạng thái nếu đã xử lý
+    
     if (order.status !== "pending") {
       return errorResponse(res, "Order status cannot be changed", 400);
     }
 
-    // 🔁 Hoàn stock khi huỷ
     if (status === "cancelled") {
       return errorResponse(
         res,
@@ -178,7 +174,7 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// ================= CANCEL ORDER (ADMIN) =================
+
 exports.cancelOrder = async (req, res) => {
   const { reason } = req.body;
 
@@ -200,7 +196,7 @@ exports.cancelOrder = async (req, res) => {
 
   order.status = "cancelled";
   order.cancelledReason = reason;
-  order.cancelledBy = req.user.id; // admin
+  order.cancelledBy = req.user.id; 
   order.cancelledAt = new Date();
 
   for (const item of order.items) {

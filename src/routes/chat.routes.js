@@ -12,7 +12,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // 1️⃣ Lấy sản phẩm còn hàng
     const products = await Product.find({ stock: { $gt: 0 } })
       .sort({ createdAt: -1 })
       .limit(12);
@@ -23,40 +22,37 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // 2️⃣ Chuẩn hóa dữ liệu cho AI
     const productList = products
       .map(p => {
         return `
-Product name: ${p.name}
-Category: ${p.category}
-Brand: ${p.brand}
-Price: $${p.price}
-Description: ${p.description || "No description"}
-Stock: ${p.stock}
+        Product name: ${p.name}
+        Category: ${p.category}
+        Brand: ${p.brand}
+        Price: $${p.price}
+        Description: ${p.description || "No description"}
+        Stock: ${p.stock}
         `;
       })
       .join("\n");
 
-    // 3️⃣ Prompt bán hàng chuyên nghiệp
     const prompt = `
-You are a professional sales assistant for an online audio equipment store.
+      You are a professional sales assistant for an online audio equipment store.
 
-Available products:
-${productList}
+      Available products:
+      ${productList}
 
-Rules:
-- Only recommend products listed above
-- Do NOT invent new products
-- Prioritize products that match the customer's needs
-- Ask follow-up questions if needed
-- Be friendly, clear, and concise
-- Answer in English
+      Rules:
+      - Only recommend products listed above
+      - Do NOT invent new products
+      - Prioritize products that match the customer's needs
+      - Ask follow-up questions if needed
+      - Be friendly, clear, and concise
+      - Answer in English
 
-Customer question:
-${message}
-`;
+      Customer question:
+      ${message}
+      `;
 
-    // 4️⃣ Gọi Gemini
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
